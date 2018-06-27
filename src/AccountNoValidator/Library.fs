@@ -24,5 +24,5 @@ module Validator =
         let rules = rulesTable |> List.filter (fun r -> sortCode >= r.SortCodeFrom && sortCode <= r.SortCodeTo)
         match rules with
         | [] -> Valid
-        | rules -> Implementation.validateRules rules (sortCode + accountNo)
+        | rules -> Implementation.validateRules rules substitutionTable sortCode accountNo
 
