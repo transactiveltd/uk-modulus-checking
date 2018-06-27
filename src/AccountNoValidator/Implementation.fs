@@ -1,6 +1,5 @@
 namespace AccountNoValidator
 
-open System.Net
 module internal Implementation =
     open System
     open Types
@@ -33,7 +32,7 @@ module internal Implementation =
         | 6, 8 -> Some (sortCode, accountNo)
         | 6, 6 -> Some (sortCode, "00" + accountNo)
         | 6, 7 -> Some (sortCode, "0" + accountNo)
-        | 6, 9 -> Some (sortCode.[0..4] + accountNo.[0..0], accountNo.[1..]) //TODO check SC if it's Santander?
+        | 6, 9 -> Some (sortCode.[0..4] + accountNo.[0..0], accountNo.[1..]) //TODO should we check SC if it's really Santander?
         | 6, 10 ->
             if sortCode.StartsWith("08") // Co-Operative Bank plc
             then Some (sortCode, accountNo.[..7])
@@ -52,9 +51,6 @@ module internal Implementation =
         |> Seq.map char2int
         |> Seq.map2 (*) weights
         |> Seq.sum
-
-    // doubleAlternate [2;1;2;1;2;1;2;1;2;1;2;1;2;1] "49927312345678"
-    // standard 11 [0;0;0;0;0;0;7;5;8;3;4;6;2;1] "00000058177632"
 
     let validate rule number =
         match rule.Method with
@@ -103,9 +99,24 @@ module internal Implementation =
 
                 | Exception 8 ->
                     // Perform the check as specified, except substitute the sorting code with 090126, for check purposes only.
-                    validate rule ("090126" + number.[6..])
+                    validate rule ("090126" + number.[Position.A..])
 
-                | _ -> true
+                | Exception 14 ->
+                    // Perform the modulus 11 check as normal: If the check passes (that is, there is no remainder), then the account number should be considered valid. Do not perform the second check.
+                    // If the first check fails, then the second check must be performed as specified below.
+                    let secondCheck() =
+                        // If the 8th digit of the account number (reading from left to right) is not 0, 1 or 9 then the account number fails the second check and is not a valid Coutts account number.
+                        // If the 8th digit is 0, 1 or 9, then remove the digit from the account number and insert a 0 as the 1st digit for check purposes only.
+                        // Perform the modulus 11 check on the modified account number using the same weightings as specified in the table.
+                        // - If there is no remainder, then the account number should be considered valid.
+                        // - If there is a remainder, then the account number fails the second check and is not a valid Coutts account number
+                        if "019" |> Seq.contains accountNo.[7]
+                        then validate rule (sortCode + "0" + accountNo.[..6])
+                        else false
+
+                    validate rule number || secondCheck()
+
+                | _ -> true // TODO: Should we fail for unrecognized exception?
 
             | [rule1; rule2], [ex1; ex2] ->
                 match ex1, ex2 with
@@ -184,7 +195,12 @@ module internal Implementation =
 
                     firstCheck() || secondCheck()
 
-                | _ -> true
+                | Exception 12, Exception 13 ->
+                    // Where there is a 12 in the exception column for the first check for a sorting code and a 13 in the exception column for the second check for the same sorting code,
+                    // if either check is successful the account number is deemed valid.
+                    validate rule1 number || validate rule2 number
+
+                | _ -> true // TODO: Should we fail for unrecognized exception?
 
             | _ -> true
 
