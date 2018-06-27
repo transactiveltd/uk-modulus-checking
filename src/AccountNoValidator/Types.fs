@@ -16,7 +16,7 @@ module Types =
             SortCodeFrom: SortCode
             SortCodeTo: SortCode
             Method: ValidationMethod
-            Weights: Weight list
+            Weightings: Weight list
             Exception: ValidationException option
         }
 
