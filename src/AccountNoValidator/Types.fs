@@ -20,4 +20,4 @@ module Types =
             Exception: ValidationException option
         }
 
-    type SortCodeSubstitution = { SortCode: int; SubstituteWith: int }
+    type SortCodeSubstitution = { SortCode: SortCode; SubstituteWith: SortCode }
