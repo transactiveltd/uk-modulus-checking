@@ -6,7 +6,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <Title>uk-modulus-checking</Title>
-    <Description>Check the UK sort code/account number using algorithms and weights published by VocaLink</Description>
+    <Description>Check the UK sort code/account number using algorithms and weightings published by VocaLink</Description>
     <PackageTags>f#, fsharp, sortcode, account number, validation, modulus</PackageTags>
     <PackageProjectUrl>https://github.com/transactiveltd/uk-modulus-checking</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/transactiveltd/uk-modulus-checking/LICENSE.md</PackageLicenseUrl>

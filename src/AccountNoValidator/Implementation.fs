@@ -20,6 +20,12 @@ module internal Implementation =
         let G: Weight = 12
         let H: Weight = 13
 
+    module List =
+        let sequence xs =
+            if xs |> List.exists Option.isNone
+            then None
+            else Some (xs |> List.choose id)
+
     let (|Not|_|) c input =
         if input <> c then Some c else None
 
@@ -39,24 +45,24 @@ module internal Implementation =
             else Some (sortCode, accountNo.[2..])
         | _ -> None
 
-    let doubleAlternate (weights: Weight list) (number: string) : int =
+    let doubleAlternate (weightings: Weight list) (number: string) : int =
         number
         |> Seq.map char2int
-        |> Seq.map2 (*) weights
+        |> Seq.map2 (*) weightings
         |> Seq.collect (Seq.unfold (fun x -> if x > 0 then Some (x % 10, x / 10) else None))
         |> Seq.sum
 
-    let standard (weights: Weight list) (number: string) : int =
+    let standard (weightings: Weight list) (number: string) : int =
         number
         |> Seq.map char2int
-        |> Seq.map2 (*) weights
+        |> Seq.map2 (*) weightings
         |> Seq.sum
 
     let validate rule number =
         match rule.Method with
-        | Standard10 -> standard rule.Weights number % 10 = 0
-        | Standard11 -> standard rule.Weights number % 11 = 0
-        | DoubleAlternate -> doubleAlternate rule.Weights number % 10 = 0
+        | Standard10 -> standard rule.Weightings number % 10 = 0
+        | Standard11 -> standard rule.Weightings number % 11 = 0
+        | DoubleAlternate -> doubleAlternate rule.Weightings number % 10 = 0
 
     let validateRules (rules: ValidationRule list) (substitutionTable: SortCodeSubstitution list) (sortCode: SortCode) (accountNo: AccountNumber) =
         let number = sortCode + accountNo
@@ -73,7 +79,7 @@ module internal Implementation =
                 match ex with
                 | Exception 1 ->
                     // Perform the double alternate check except: Add 27 to the total (ie before you divide by 10)
-                    (doubleAlternate rule.Weights number + 27) % 10 = 0
+                    (doubleAlternate rule.Weightings number + 27) % 10 = 0
 
                 | Exception 3 ->
                     // If c=6 or c=9 the double alternate check does not need to be carried out.
@@ -85,7 +91,7 @@ module internal Implementation =
                     // Perform the standard modulus 11 check.
                     // After you have finished the check, ensure that the remainder is the same as the two-digit checkdigit;
                     // the checkdigit for exception 4 is gh from the original account number.
-                    let modulus = standard rule.Weights number % 11
+                    let modulus = standard rule.Weightings number % 11
                     let checkdigit = (char2int number.[Position.G]) * 10 + (char2int number.[Position.H])
                     modulus = checkdigit
 
@@ -93,7 +99,7 @@ module internal Implementation =
                     // Perform the check as specified, except if g = 9 zeroise weighting positions u-b.
                     let rule', number' =
                         if number.[Position.G] = '9'
-                        then { rule with Weights = rule.Weights.[Position.B+1..] }, number.[Position.B+1..]
+                        then { rule with Weightings = rule.Weightings.[Position.B+1..] }, number.[Position.B+1..]
                         else rule, number
                     validate rule' number'
 
@@ -123,18 +129,18 @@ module internal Implementation =
                 | Exception 2, Exception 9 ->
                     // Only occurs for some standard modulus 11 checks, when there is a 2 in the exception column for the first check for a sorting code
                     // and a 9 in the exception column for the second check for the same sorting code. This is used specifically for Lloyds euro accounts.
-                    let weights =
+                    let weightings =
                         match number.[Position.A], number.[Position.G] with
                         | Not '0' _, Not '9' _ -> [0;0;1;2;5;3;6;4;8;7;10;9;3;1]
                         | Not '0' _, '9' -> [0;0;0;0;0;0;0;0;8;7;10;9;3;1]
-                        | _ -> rule1.Weights
+                        | _ -> rule1.Weightings
 
                     let firstCheck() =
-                        standard weights number % 11 = 0
+                        standard weightings number % 11 = 0
 
                     let secondCheck() =
                         let number = "309634" + accountNo
-                        standard weights number % 11 = 0
+                        standard weightings number % 11 = 0
 
                     // If the first row with exception 2 passes the standard modulus 11 check, you do not need to carry out the second check (ie it is deemed to be a valid sterling account).
                     firstCheck() || secondCheck()
@@ -155,7 +161,7 @@ module internal Implementation =
                         // - if the remainder = 0 and g = 0 the account number is valid
                         // - if the remainder = 1 the account number is invalid
                         // - for all other remainders, take the remainder away from 11. If the number you get is the same as g then the account number is valid.
-                        match standard rule1.Weights number % 11 with
+                        match standard rule1.Weightings number % 11 with
                         | 0 when number.[Position.G] = '0' -> true
                         | 1 -> false
                         | reminder -> (11 - reminder) = char2int number.[Position.G]
@@ -165,7 +171,7 @@ module internal Implementation =
                         // After dividing the result by 10:
                         // - if the remainder = 0 and h = 0 the account number is valid
                         // - for all other remainders, take the remainder away from 10. If the number you get is the same as h then the account number is valid.
-                        match doubleAlternate rule1.Weights number % 10 with
+                        match doubleAlternate rule1.Weightings number % 10 with
                         | 0 when number.[Position.H] = '0' -> true
                         | reminder -> (10 - reminder) = char2int number.[Position.H]
 
@@ -186,7 +192,7 @@ module internal Implementation =
                         // For the exception 10 check, if ab = 09 or ab = 99 and g = 9, zeroise weighting positions u-b.
                         let rule1' =
                             if ["09"; "99"] |> List.contains number.[Position.A..Position.B] && number.[Position.G] = '9'
-                            then { rule1 with Weights = [for i, w in rule1.Weights |> List.indexed -> if i >= Position.U && i <= Position.B then 0 else w] }
+                            then { rule1 with Weightings = [for i, w in rule1.Weightings |> List.indexed -> if i >= Position.U && i <= Position.B then 0 else w] }
                             else rule1
                         validate rule1' number
 
