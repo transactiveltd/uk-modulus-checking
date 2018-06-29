@@ -1,4 +1,4 @@
-namespace AccountNoValidator
+namespace UkModulusCheck
 
 module Types =
     type ValidationResult = Valid | Invalid

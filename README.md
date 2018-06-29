@@ -8,15 +8,15 @@ Validate UK sortcode/account no. using algorithms and weightings published by Vo
 
 MacOS/Linux | Windows
 --- | ---
-[![Travis Badge](https://travis-ci.org/MyGithubUsername/AccountNoValidator.svg?branch=master)](https://travis-ci.org/MyGithubUsername/AccountNoValidator) | [![Build status](https://ci.appveyor.com/api/projects/status/github/MyGithubUsername/AccountNoValidator?svg=true)](https://ci.appveyor.com/project/MyGithubUsername/AccountNoValidator)
-[![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/AccountNoValidator)](https://travis-ci.org/MyGithubUsername/AccountNoValidator/builds) | [![Build History](https://buildstats.info/appveyor/chart/MyGithubUsername/AccountNoValidator)](https://ci.appveyor.com/project/MyGithubUsername/AccountNoValidator)  
+[![Travis Badge](https://travis-ci.org/transactiveltd/uk-modulus-checking.svg?branch=master)](https://travis-ci.org/transactiveltd/uk-modulus-checking) | [![Build status](https://ci.appveyor.com/api/projects/status/github/transactiveltd/uk-modulus-checking?svg=true)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)
+[![Build History](https://buildstats.info/travisci/chart/transactiveltd/uk-modulus-checking)](https://travis-ci.org/transactiveltd/uk-modulus-checking/builds) | [![Build History](https://buildstats.info/appveyor/chart/transactiveltd/uk-modulus-checking)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)  
 
 
 ## Nuget 
 
 Stable | Prerelease
 --- | ---
-[![NuGet Badge](https://buildstats.info/nuget/AccountNoValidator)](https://www.nuget.org/packages/AccountNoValidator/) | [![NuGet Badge](https://buildstats.info/nuget/AccountNoValidator?includePreReleases=true)](https://www.nuget.org/packages/AccountNoValidator/)
+[![NuGet Badge](https://buildstats.info/nuget/UkModulusCheck)](https://www.nuget.org/packages/UkModulusCheck/) | [![NuGet Badge](https://buildstats.info/nuget/UkModulusCheck?includePreReleases=true)](https://www.nuget.org/packages/UkModulusCheck/)
 
 ---
 

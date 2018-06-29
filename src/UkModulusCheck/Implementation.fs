@@ -1,4 +1,4 @@
-namespace AccountNoValidator
+namespace UkModulusCheck
 
 module internal Implementation =
     open System
@@ -129,18 +129,18 @@ module internal Implementation =
                 | Exception 2, Exception 9 ->
                     // Only occurs for some standard modulus 11 checks, when there is a 2 in the exception column for the first check for a sorting code
                     // and a 9 in the exception column for the second check for the same sorting code. This is used specifically for Lloyds euro accounts.
-                    let weightings =
+                    let rule1weightings =
                         match number.[Position.A], number.[Position.G] with
                         | Not '0' _, Not '9' _ -> [0;0;1;2;5;3;6;4;8;7;10;9;3;1]
                         | Not '0' _, '9' -> [0;0;0;0;0;0;0;0;8;7;10;9;3;1]
                         | _ -> rule1.Weightings
 
                     let firstCheck() =
-                        standard weightings number % 11 = 0
+                        standard rule1weightings number % 11 = 0
 
                     let secondCheck() =
-                        let number = "309634" + accountNo
-                        standard weightings number % 11 = 0
+                        let number' = "309634" + accountNo
+                        standard rule2.Weightings number' % 11 = 0
 
                     // If the first row with exception 2 passes the standard modulus 11 check, you do not need to carry out the second check (ie it is deemed to be a valid sterling account).
                     firstCheck() || secondCheck()
@@ -149,11 +149,11 @@ module internal Implementation =
                     // Perform the first check (standard modulus check) except:
                     // If the sorting code appears in this table in the “Original s/c” column, substitute it for the “substitute with” column (for check purposes only).
                     // If the sorting code is not found, use the original sorting code.
-                    let sortCode =
+                    let sortCode' =
                         match substitutionTable |> List.tryFind (fun sub -> sub.SortCode = sortCode) with
                         | Some sub -> sub.SubstituteWith
                         | None -> sortCode
-                    let number = sortCode + accountNo
+                    let number' = sortCode' + accountNo
 
                     let firstCheck() =
                         // For the standard check with exception 5 the checkdigit is g from the original account number.
@@ -161,19 +161,19 @@ module internal Implementation =
                         // - if the remainder = 0 and g = 0 the account number is valid
                         // - if the remainder = 1 the account number is invalid
                         // - for all other remainders, take the remainder away from 11. If the number you get is the same as g then the account number is valid.
-                        match standard rule1.Weightings number % 11 with
-                        | 0 when number.[Position.G] = '0' -> true
+                        match standard rule1.Weightings number' % 11 with
+                        | 0 when number'.[Position.G] = '0' -> true
                         | 1 -> false
-                        | reminder -> (11 - reminder) = char2int number.[Position.G]
+                        | reminder -> (11 - reminder) = char2int number'.[Position.G]
 
                     let secondCheck() =
                         // Perform the second double alternate check, and for the double alternate check with exception 5 the checkdigit is h from the original account number, except:
                         // After dividing the result by 10:
                         // - if the remainder = 0 and h = 0 the account number is valid
                         // - for all other remainders, take the remainder away from 10. If the number you get is the same as h then the account number is valid.
-                        match doubleAlternate rule1.Weightings number % 10 with
-                        | 0 when number.[Position.H] = '0' -> true
-                        | reminder -> (10 - reminder) = char2int number.[Position.H]
+                        match doubleAlternate rule2.Weightings number' % 10 with
+                        | 0 when number'.[Position.H] = '0' -> true
+                        | reminder -> (10 - reminder) = char2int number'.[Position.H]
 
                     firstCheck() && secondCheck()
 

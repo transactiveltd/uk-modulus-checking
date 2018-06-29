@@ -7,8 +7,8 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-let productName = "AccountNoValidator"
-let sln = "AccountNoValidator.sln"
+let productName = "UkModulusCheck"
+let sln = "UkModulusCheck.sln"
 let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
@@ -18,7 +18,7 @@ let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
 let gitOwner = "MyGithubUsername"
-let gitRepoName = "AccountNoValidator"
+let gitRepoName = "UkModulusCheck"
 
 let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
