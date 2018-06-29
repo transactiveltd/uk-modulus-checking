@@ -2,8 +2,8 @@
 namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("AccountNoValidator")>]
-[<assembly: AssemblyProductAttribute("AccountNoValidator")>]
+[<assembly: AssemblyTitleAttribute("UkModulusCheck.Tests")>]
+[<assembly: AssemblyProductAttribute("UkModulusCheck")>]
 [<assembly: AssemblyVersionAttribute("0.1.0")>]
 [<assembly: AssemblyMetadataAttribute("ReleaseDate","2017-03-17T00:00:00.0000000")>]
 [<assembly: AssemblyFileVersionAttribute("0.1.0")>]
@@ -13,8 +13,8 @@ open System.Reflection
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] AssemblyTitle = "AccountNoValidator"
-    let [<Literal>] AssemblyProduct = "AccountNoValidator"
+    let [<Literal>] AssemblyTitle = "UkModulusCheck.Tests"
+    let [<Literal>] AssemblyProduct = "UkModulusCheck"
     let [<Literal>] AssemblyVersion = "0.1.0"
     let [<Literal>] AssemblyMetadata_ReleaseDate = "2017-03-17T00:00:00.0000000"
     let [<Literal>] AssemblyFileVersion = "0.1.0"

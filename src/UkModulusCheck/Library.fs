@@ -1,4 +1,4 @@
-namespace AccountNoValidator
+namespace UkModulusCheck
 
 module Validator =
     open System
@@ -9,7 +9,7 @@ module Validator =
     // TODO
     // * Validate input SC/AN
 
-    let loadWeightings path =
+    let loadRules path =
         let mapMethod = function
         | "MOD10" -> Some Standard10
         | "MOD11" -> Some Standard11
