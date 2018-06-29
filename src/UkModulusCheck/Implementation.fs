@@ -2,6 +2,7 @@ namespace UkModulusCheck
 
 module internal Implementation =
     open System
+    open Helpers
     open Types
 
     module Position =
@@ -20,78 +21,87 @@ module internal Implementation =
         let G: Weight = 12
         let H: Weight = 13
 
-    module List =
-        let sequence xs =
-            if xs |> List.exists Option.isNone
-            then None
-            else Some (xs |> List.choose id)
+    let parseMethod = function
+        | "MOD10" -> Some Standard10
+        | "MOD11" -> Some Standard11
+        | "DBLAL" -> Some DoubleAlternate
+        | _ -> None
 
-    let (|Not|_|) c input =
-        if input <> c then Some c else None
+    let parseValidationRule (line: string) =
+        match line.Split([|' '|], StringSplitOptions.RemoveEmptyEntries) with
+        | xs when xs.Length = 18 ->
+            let scFrom, scTo = xs.[0], xs.[1]
+            let method = xs.[2] |> parseMethod
+            let weightings = xs.[3..16] |> Array.toList |> List.map str2int |> List.sequence
+            let ex = str2int xs.[17]
+            Option.map3 (fun m ws e -> { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = Some (Exception e) }) method weightings ex
+        | xs when xs.Length = 17 ->
+            let scFrom, scTo = xs.[0], xs.[1]
+            let method = xs.[2] |> parseMethod
+            let weightings = xs.[3..16] |> Array.toList |> List.map str2int |> List.sequence
+            Option.map2 (fun m ws -> { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = None }) method weightings
+        | _ -> None
 
-    let char2int = Char.GetNumericValue >> int
-
-    let isDigitString s = s |> Seq.exists (Char.IsDigit >> not) |> not
+    let parseSubstitution (line: string) =
+        match line.Split([|' '|], StringSplitOptions.RemoveEmptyEntries) with
+        | [|scFrom; scTo|] -> Some { SortCode = scFrom; SubstituteWith = scTo }
+        | _ -> None
 
     let standardise (sortCode: string) (accountNo: string) =
         match sortCode.Length, accountNo.Length with
         | 6, 8 -> Some (sortCode, accountNo)
         | 6, 6 -> Some (sortCode, "00" + accountNo)
         | 6, 7 -> Some (sortCode, "0" + accountNo)
-        | 6, 9 -> Some (sortCode.[0..4] + accountNo.[0..0], accountNo.[1..]) //TODO should we check SC if it's really Santander?
+        | 6, 9 -> Some (sortCode.[0..4] + accountNo.[0..0], accountNo.[1..]) // For Santander
         | 6, 10 ->
             if sortCode.StartsWith("08") // Co-Operative Bank plc
             then Some (sortCode, accountNo.[..7])
             else Some (sortCode, accountNo.[2..])
         | _ -> None
 
-    let doubleAlternate (weightings: Weight list) (number: string) : int =
+    let doubleAlternateModulus (weightings: Weight list) (number: string) : int =
         number
         |> Seq.map char2int
         |> Seq.map2 (*) weightings
         |> Seq.collect (Seq.unfold (fun x -> if x > 0 then Some (x % 10, x / 10) else None))
         |> Seq.sum
 
-    let standard (weightings: Weight list) (number: string) : int =
+    let standardModulus (weightings: Weight list) (number: string) : int =
         number
         |> Seq.map char2int
         |> Seq.map2 (*) weightings
         |> Seq.sum
 
-    let validate rule number =
+    let validateRule rule number =
         match rule.Method with
-        | Standard10 -> standard rule.Weightings number % 10 = 0
-        | Standard11 -> standard rule.Weightings number % 11 = 0
-        | DoubleAlternate -> doubleAlternate rule.Weightings number % 10 = 0
+        | Standard10 -> standardModulus rule.Weightings number % 10 = 0
+        | Standard11 -> standardModulus rule.Weightings number % 11 = 0
+        | DoubleAlternate -> doubleAlternateModulus rule.Weightings number % 10 = 0
 
     let validateRules (rules: ValidationRule list) (substitutionTable: SortCodeSubstitution list) (sortCode: SortCode) (accountNo: AccountNumber) =
         let number = sortCode + accountNo
-        let exceptions = rules |> List.choose (fun r -> r.Exception)
+        let exceptions = rules |> List.map (fun r -> r.Exception)
         let isValid =
             match rules, exceptions with
-            | [rule], [] ->
-                validate rule number
+            | [], _ -> true
 
-            | [rule1; rule2], [] ->
-                (validate rule1 number) && (validate rule2 number)
+            | [rule], [None] ->
+                validateRule rule number
 
-            | [rule], [ex] ->
+            | [rule1; rule2], [None; None] ->
+                (validateRule rule1 number) && (validateRule rule2 number)
+
+            | [rule], [Some ex] ->
                 match ex with
                 | Exception 1 ->
                     // Perform the double alternate check except: Add 27 to the total (ie before you divide by 10)
-                    (doubleAlternate rule.Weightings number + 27) % 10 = 0
-
-                | Exception 3 ->
-                    // If c=6 or c=9 the double alternate check does not need to be carried out.
-                    match number.[Position.C] with
-                    | '6' | '9' -> true
-                    | _ -> validate rule number
+                    (doubleAlternateModulus rule.Weightings number + 27) % 10 = 0
 
                 | Exception 4 ->
                     // Perform the standard modulus 11 check.
                     // After you have finished the check, ensure that the remainder is the same as the two-digit checkdigit;
                     // the checkdigit for exception 4 is gh from the original account number.
-                    let modulus = standard rule.Weightings number % 11
+                    let modulus = standardModulus rule.Weightings number % 11
                     let checkdigit = (char2int number.[Position.G]) * 10 + (char2int number.[Position.H])
                     modulus = checkdigit
 
@@ -101,11 +111,11 @@ module internal Implementation =
                         if number.[Position.G] = '9'
                         then { rule with Weightings = rule.Weightings.[Position.B+1..] }, number.[Position.B+1..]
                         else rule, number
-                    validate rule' number'
+                    validateRule rule' number'
 
                 | Exception 8 ->
                     // Perform the check as specified, except substitute the sorting code with 090126, for check purposes only.
-                    validate rule ("090126" + number.[Position.A..])
+                    validateRule rule ("090126" + number.[Position.A..])
 
                 | Exception 14 ->
                     // Perform the modulus 11 check as normal: If the check passes (that is, there is no remainder), then the account number should be considered valid. Do not perform the second check.
@@ -117,30 +127,47 @@ module internal Implementation =
                         // - If there is no remainder, then the account number should be considered valid.
                         // - If there is a remainder, then the account number fails the second check and is not a valid Coutts account number
                         if "019" |> Seq.contains accountNo.[7]
-                        then validate rule (sortCode + "0" + accountNo.[..6])
+                        then validateRule rule (sortCode + "0" + accountNo.[..6])
                         else false
 
-                    validate rule number || secondCheck()
+                    validateRule rule number || secondCheck()
 
-                | _ -> true // TODO: Should we fail for unrecognized exception?
+                | _ -> false // TODO: Should we fail for unrecognized exception?
 
-            | [rule1; rule2], [ex1; ex2] ->
+            | [rule1; rule2], [None; Some ex2] ->
+                match ex2 with
+                | Exception 3 ->
+                    let secondCheck() =
+                        // If c=6 or c=9 the double alternate check does not need to be carried out.
+                        match number.[Position.C] with
+                        | '6' | '9' -> true
+                        | _ -> validateRule rule2 number
+
+                    validateRule rule1 number || secondCheck()
+
+                | _ -> false
+
+            | [rule1; rule2], [Some ex1; Some ex2] ->
                 match ex1, ex2 with
                 | Exception 2, Exception 9 ->
                     // Only occurs for some standard modulus 11 checks, when there is a 2 in the exception column for the first check for a sorting code
                     // and a 9 in the exception column for the second check for the same sorting code. This is used specifically for Lloyds euro accounts.
-                    let rule1weightings =
-                        match number.[Position.A], number.[Position.G] with
-                        | Not '0' _, Not '9' _ -> [0;0;1;2;5;3;6;4;8;7;10;9;3;1]
-                        | Not '0' _, '9' -> [0;0;0;0;0;0;0;0;8;7;10;9;3;1]
-                        | _ -> rule1.Weightings
-
                     let firstCheck() =
-                        standard rule1weightings number % 11 = 0
+                        let weightings =
+                            match number.[Position.A], number.[Position.G] with
+                            | Not '0' _, Not '9' _ -> [0;0;1;2;5;3;6;4;8;7;10;9;3;1]
+                            | Not '0' _, '9' -> [0;0;0;0;0;0;0;0;8;7;10;9;3;1]
+                            | _ -> rule1.Weightings
+                        standardModulus weightings number % 11 = 0
 
                     let secondCheck() =
+                        // All Lloyds euro accounts are held at sorting code 30-96-34, however customers may perceive that their euro account
+                        // is held at the branch where sterling accounts are held and thus quote a sorting code other than 30-96-34.
+                        // The combination of the “sterling” sorting code and “euro” account number will cause the first standard modulus 11 check to fail.
+                        // In such cases, carry out the second modulus 11 check, substituting the sorting code with 309634 and the appropriate weighting.
+                        // If this check passes it is deemed to be a valid euro account.
                         let number' = "309634" + accountNo
-                        standard rule2.Weightings number' % 11 = 0
+                        standardModulus rule2.Weightings number' % 11 = 0
 
                     // If the first row with exception 2 passes the standard modulus 11 check, you do not need to carry out the second check (ie it is deemed to be a valid sterling account).
                     firstCheck() || secondCheck()
@@ -161,7 +188,7 @@ module internal Implementation =
                         // - if the remainder = 0 and g = 0 the account number is valid
                         // - if the remainder = 1 the account number is invalid
                         // - for all other remainders, take the remainder away from 11. If the number you get is the same as g then the account number is valid.
-                        match standard rule1.Weightings number' % 11 with
+                        match standardModulus rule1.Weightings number' % 11 with
                         | 0 when number'.[Position.G] = '0' -> true
                         | 1 -> false
                         | reminder -> (11 - reminder) = char2int number'.[Position.G]
@@ -171,7 +198,7 @@ module internal Implementation =
                         // After dividing the result by 10:
                         // - if the remainder = 0 and h = 0 the account number is valid
                         // - for all other remainders, take the remainder away from 10. If the number you get is the same as h then the account number is valid.
-                        match doubleAlternate rule2.Weightings number' % 10 with
+                        match doubleAlternateModulus rule2.Weightings number' % 10 with
                         | 0 when number'.[Position.H] = '0' -> true
                         | reminder -> (10 - reminder) = char2int number'.[Position.H]
 
@@ -182,7 +209,7 @@ module internal Implementation =
                     // If a = 4, 5, 6, 7 or 8, and g and h are the same, the accounts are for a foreign currency and the checks cannot be used.
                     if ("45678" |> Seq.contains number.[Position.A]) && number.[Position.G] = number.[Position.H]
                     then true
-                    else validate rule1 number && validate rule2 number
+                    else validateRule rule1 number && validateRule rule2 number
 
                 | Exception 10, Exception 11 ->
                     // These exceptions are for some Lloyds accounts and some TSB accounts. If there is a 10 in the exception column for the first check for a sorting code
@@ -194,20 +221,20 @@ module internal Implementation =
                             if ["09"; "99"] |> List.contains number.[Position.A..Position.B] && number.[Position.G] = '9'
                             then { rule1 with Weightings = [for i, w in rule1.Weightings |> List.indexed -> if i >= Position.U && i <= Position.B then 0 else w] }
                             else rule1
-                        validate rule1' number
+                        validateRule rule1' number
 
                     let secondCheck() =
-                        validate rule2 number
+                        validateRule rule2 number
 
                     firstCheck() || secondCheck()
 
                 | Exception 12, Exception 13 ->
                     // Where there is a 12 in the exception column for the first check for a sorting code and a 13 in the exception column for the second check for the same sorting code,
                     // if either check is successful the account number is deemed valid.
-                    validate rule1 number || validate rule2 number
+                    validateRule rule1 number || validateRule rule2 number
 
-                | _ -> true // TODO: Should we fail for unrecognized exception?
+                | _ -> false // TODO: Should we fail for unrecognized exception?
 
-            | _ -> true
+            | _ -> false // TODO: Should we fail for unrecognized number of rules/exceptions?
 
         if isValid then Valid else Invalid
