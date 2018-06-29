@@ -22,6 +22,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="Helpers.fs" />
     <Compile Include="Implementation.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>

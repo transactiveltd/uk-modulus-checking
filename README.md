@@ -1,6 +1,6 @@
 # uk-modulus-checking
 
-Validate UK sortcode/account no. using algorithms and weightings published by VocaLink
+Validate UK sortcode/account number using algorithms and weightings [published by VocaLink](https://www.vocalink.com/customer-support/modulus-checking/).
 
 ---
 
