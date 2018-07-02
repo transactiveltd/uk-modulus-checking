@@ -3,19 +3,31 @@ module UkModulusCheckTests
 open Expecto
 open UkModulusCheck.Types
 open UkModulusCheck.Validator
+open System.IO
+open System.Reflection
 
 let getTests() =
+    let path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
     let rulesTable =
-        match loadRules "valacdos-v490.txt" with
+        match loadRules (Path.Combine(path, "valacdos-v490.txt")) with
         | Ok rules -> rules
         | Error ex -> printfn "!!! %A" ex; []
 
     let substitutionTable =
-        match loadSubstitutions "scsubtab.txt" with
+        match loadSubstitutions (Path.Combine(path, "scsubtab.txt")) with
         | Ok subs -> subs
         | Error ex -> printfn "!!! %A" ex; []
 
     testList "Sort Code and Account Number validation checks" [
+        testList "Verify data is loaded" [
+            testCase "Rules are loaded." <| fun _ ->
+                Expect.isNonEmpty rulesTable (sprintf "Couldn't load rules table from path: %s" path)
+
+            testCase "Substitutions are loaded." <| fun _ ->
+                let a = Assembly.GetExecutingAssembly()
+                Expect.isNonEmpty substitutionTable (sprintf "Couldn't load substitutions table from path: %s" path)
+        ]
+
         testList "No exceptions cases" [
             testCase "Pass modulus 10 check." <| fun _ ->
                 let sc, an = "089999", "66374958"
