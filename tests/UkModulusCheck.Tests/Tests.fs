@@ -24,7 +24,6 @@ let getTests() =
                 Expect.isNonEmpty rulesTable (sprintf "Couldn't load rules table from path: %s" path)
 
             testCase "Substitutions are loaded." <| fun _ ->
-                let a = Assembly.GetExecutingAssembly()
                 Expect.isNonEmpty substitutionTable (sprintf "Couldn't load substitutions table from path: %s" path)
         ]
 
