@@ -8,6 +8,7 @@ open System.Reflection
 
 let getTests() =
     let path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+
     let rulesTable =
         match loadRules (Path.Combine(path, "valacdos-v490.txt")) with
         | Ok rules -> rules
@@ -25,6 +26,13 @@ let getTests() =
 
             testCase "Substitutions are loaded." <| fun _ ->
                 Expect.isNonEmpty substitutionTable (sprintf "Couldn't load substitutions table from path: %s" path)
+        ]
+
+        testList "Non-verifiable cases" [
+            testCase "Sort code not in rules table." <| fun _ ->
+                let sc, an = "001122", "44556677"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
         ]
 
         testList "No exceptions cases" [
@@ -219,6 +227,43 @@ let getTests() =
                 let sc, an = "180002", "00000190"
                 let result = validateAccountNo rulesTable substitutionTable sc an
                 Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+        ]
+
+        testList "Non-standard length of account number" [
+            testCase "Account number has 6 digits." <| fun _ ->
+                let sc, an = "180002", "000190"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+
+            testCase "Account number has 7 digits." <| fun _ ->
+                let sc, an = "086090", "6774744"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+
+            testCase "Account number has 9 digits." <| fun _ ->
+                let sc, an = "089990", "966374958"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+
+            testCase "Account number has 10 digits (Co-Operative Bank plc)." <| fun _ ->
+                let sc, an = "089999", "6637495842"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+
+            testCase "Account number has 10 digits (other cases)." <| fun _ ->
+                let sc, an = "107999", "4288837491"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Valid (sprintf "This should be a valid account: %s-%s" sc an)
+
+            testCase "Account number has more than 10 digits." <| fun _ ->
+                let sc, an = "089999", "66374958421"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+
+            testCase "Account number has less than 6 digits." <| fun _ ->
+                let sc, an = "180002", "00190"
+                let result = validateAccountNo rulesTable substitutionTable sc an
+                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
         ]
     ]
 

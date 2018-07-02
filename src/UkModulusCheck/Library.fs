@@ -27,6 +27,10 @@ module Validator =
     let validateAccountNo (rulesTable: ValidationRule list) (substitutionTable: SortCodeSubstitution list) (sortCode: SortCode) (accountNo: AccountNumber) =
         //Q: is any cleanup on the input data required (especially if they are to be strings)?
         //Q: what is the expected output - just the information if the SC/AN is valid or something more is needed?
-        let rules = rulesTable |> List.filter (fun r -> sortCode >= r.SortCodeFrom && sortCode <= r.SortCodeTo)
-        validateRules rules substitutionTable sortCode accountNo
+        match standardise sortCode accountNo with
+        | Some (sortCode, accountNo) ->
+            let rules = rulesTable |> List.filter (fun r -> sortCode >= r.SortCodeFrom && sortCode <= r.SortCodeTo)
+            validateRules rules substitutionTable sortCode accountNo
+        | None ->
+            Invalid
 
