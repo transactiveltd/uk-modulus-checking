@@ -39,17 +39,30 @@ module internal Implementation =
         | [|scFrom; scTo|] -> Some { SortCode = scFrom; SubstituteWith = scTo }
         | _ -> None
 
+    let validateSortCode (sortCode: SortCode) =
+        match sortCode with
+        | null -> Invalid SortCodeInvalidLength
+        | Trimmed sc when sc.Length < 6 || sc.Length > 8 -> Invalid SortCodeInvalidLength
+        | MatchesTrimmed "^\d{2}[-\s]?\d{2}[-\s]?\d{2}$" true -> Valid
+        | _ -> Invalid SortCodeInvalidFormat
+
+    let validateAccountNo (accountNo: AccountNumber) =
+        match accountNo with
+        | null -> Invalid AccountNumberInvalidLength
+        | Trimmed an when an.Length < 6 || an.Length > 10 -> Invalid AccountNumberInvalidLength
+        | MatchesTrimmed "^\d{6,10}$" true -> Valid
+        | _ -> Invalid AccountNumberInvalidFormat
+
     let standardise (sortCode: string) (accountNo: string) =
         match sortCode.Length, accountNo.Length with
-        | 6, 8 -> Some (sortCode, accountNo)
-        | 6, 6 -> Some (sortCode, "00" + accountNo)
-        | 6, 7 -> Some (sortCode, "0" + accountNo)
-        | 6, 9 -> Some (sortCode.[0..4] + accountNo.[0..0], accountNo.[1..]) // For Santander
+        | 6, 6 -> sortCode, "00" + accountNo
+        | 6, 7 -> sortCode, "0" + accountNo
+        | 6, 9 -> sortCode.[0..4] + accountNo.[0..0], accountNo.[1..] // For Santander
         | 6, 10 ->
             if sortCode.StartsWith("08") // Co-Operative Bank plc
-            then Some (sortCode, accountNo.[..7])
-            else Some (sortCode, accountNo.[2..])
-        | _ -> None
+            then sortCode, accountNo.[..7]
+            else sortCode, accountNo.[2..]
+        | _ -> sortCode, accountNo
 
     let doubleAlternateModulus (weightings: Weight list) (number: string) : int =
         number
@@ -64,7 +77,7 @@ module internal Implementation =
         |> Seq.map2 (*) weightings
         |> Seq.sum
 
-    let invalidIfFalse result = if result then Valid else Invalid ValidationFailed
+    let invalidIfFalse result = if result then Valid else Invalid ModulusCheckFailed
 
     let validateRule rule number =
         match rule.Method with
@@ -213,4 +226,4 @@ module internal Implementation =
 
             (validateRule rule number || secondCheck) |> invalidIfFalse
 
-        | _ -> Invalid UnrecognizedException
+        | _ -> Invalid UnrecognizedRule

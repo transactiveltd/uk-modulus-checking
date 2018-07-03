@@ -6,7 +6,18 @@ module Types =
     /// The result of the validation
     type ValidationResult = Valid | Invalid of FailureReason
     /// The reason of validation failure
-    and FailureReason = ValidationFailed | UnrecognizedException | InvalidInput
+    and FailureReason =
+        ModulusCheckFailed
+        | UnrecognizedRule
+        | SortCodeInvalidLength
+        | SortCodeInvalidFormat
+        | AccountNumberInvalidLength
+        | AccountNumberInvalidFormat
+
+    module ValidationResult =
+        let bind f = function
+            | Valid -> f()
+            | invalid -> invalid
 
     /// The available validation algorithms
     type ValidationMethod = Standard10 | Standard11 | DoubleAlternate
