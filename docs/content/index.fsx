@@ -41,7 +41,7 @@ To validate the sort code and account number pair use `validateAccountNo` functi
 
 match validateAccountNo rules substitutions sortCode accountNumber with
 | Valid -> printfn "%s-%s is valid!" sortCode accountNumber
-| Invalid -> printfn "%s-%s is invalid!" sortCode accountNumber
+| Invalid reason -> printfn "%s-%s is invalid! Reason: %A" sortCode accountNumber reason
 
 (**
 For more information about the API and types used by the library please check [the reference docs](reference/index.html).
