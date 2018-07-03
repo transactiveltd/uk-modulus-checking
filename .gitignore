@@ -255,3 +255,8 @@ TestResults.xml
 
 dist/
 lcov.info
+
+# Generated documentation folder
+docs/output/
+docs/content/license.md
+docs/content/release-notes.md

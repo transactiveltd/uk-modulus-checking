@@ -5,6 +5,7 @@ open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
 open System
+open System.IO
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "UkModulusCheck"
@@ -17,8 +18,8 @@ let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
-let gitOwner = "MyGithubUsername"
-let gitRepoName = "UkModulusCheck"
+let gitOwner = "transactiveltd"
+let gitRepoName = "uk-modulus-checking"
 
 let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
@@ -265,6 +266,74 @@ Target "GitHubRelease" (fun _ ->
 
 Target "Release" DoNothing
 
+// --------------------------------------------------------------------------------------
+// Generate the documentation
+
+Target "CleanDocs" (fun _ ->
+    DeleteDirs ["docs/output"]
+)
+
+Target "GenerateReferenceDocs" (fun _ ->
+    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"] [] then
+      failwith "generating reference documentation failed"
+)
+
+let generateHelp' fail debug =
+    let args =
+        if debug then ["--define:HELP"]
+        else ["--define:RELEASE"; "--define:HELP"]
+    if executeFSIWithArgs "docs/tools" "generate.fsx" args [] then
+        traceImportant "Help generated"
+    else
+        if fail then
+            failwith "generating help documentation failed"
+        else
+            traceImportant "generating help documentation failed"
+
+let generateHelp fail =
+    generateHelp' fail false
+
+Target "GenerateHelp" (fun _ ->
+    DeleteFile "docs/content/release-notes.md"
+    CopyFile "docs/content/" "RELEASE_NOTES.md"
+    Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
+
+    DeleteFile "docs/content/license.md"
+    CopyFile "docs/content/" "LICENSE"
+    Rename "docs/content/license.md" "docs/content/LICENSE"
+
+    generateHelp true
+)
+
+Target "GenerateHelpDebug" (fun _ ->
+    DeleteFile "docs/content/release-notes.md"
+    CopyFile "docs/content/" "RELEASE_NOTES.md"
+    Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
+
+    DeleteFile "docs/content/license.md"
+    CopyFile "docs/content/" "LICENSE"
+    Rename "docs/content/license.md" "docs/content/LICENSE"
+
+    generateHelp' true true
+)
+
+Target "KeepRunning" (fun _ ->
+    use watcher = new FileSystemWatcher(DirectoryInfo("docs/content").FullName,"*.*")
+    watcher.EnableRaisingEvents <- true
+    watcher.Changed.Add(fun e -> generateHelp false)
+    watcher.Created.Add(fun e -> generateHelp false)
+    watcher.Renamed.Add(fun e -> generateHelp false)
+    watcher.Deleted.Add(fun e -> generateHelp false)
+
+    traceImportant "Waiting for help edits. Press any key to stop."
+
+    System.Console.ReadKey() |> ignore
+
+    watcher.EnableRaisingEvents <- false
+    watcher.Dispose()
+)
+
+Target "GenerateDocs" DoNothing
 
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
@@ -290,5 +359,12 @@ Target "Release" DoNothing
 
 "DotnetRestore"
  ==> "WatchTests"
+
+"DotnetRestore"
+ ==> "DotnetBuild"
+ ==> "CleanDocs"
+ ==> "GenerateReferenceDocs"
+ ==> "GenerateHelp"
+ ==> "GenerateDocs"
 
 RunTargetOrDefault "DotnetPack"

@@ -1,5 +1,6 @@
 namespace UkModulusCheck
 
+/// The API of the library
 module Validator =
     open Types
     open Helpers
