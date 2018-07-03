@@ -17,3 +17,4 @@ group Build
   github fsharp/FAKE modules/Octokit/Octokit.fsx
   nuget altcover 3.0.490
   nuget ReportGenerator 3.1.2
+  nuget FSharp.Formatting
