@@ -6,20 +6,8 @@ module internal Implementation =
     open Types
 
     module Position =
-        let U: Weight = 0
-        let V: Weight = 1
-        let W: Weight = 2
-        let X: Weight = 3
-        let Y: Weight = 4
-        let Z: Weight = 5
-        let A: Weight = 6
-        let B: Weight = 7
-        let C: Weight = 8
-        let D: Weight = 9
-        let E: Weight = 10
-        let F: Weight = 11
-        let G: Weight = 12
-        let H: Weight = 13
+        let U, V, W, X, Y, Z, A, B, C, D, E,  F,  G,  H =
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
     let parseMethod = function
         | "MOD10" -> Some Standard10
@@ -34,12 +22,16 @@ module internal Implementation =
             let method = xs.[2] |> parseMethod
             let weightings = xs.[3..16] |> Array.toList |> List.map str2int |> List.sequence
             let ex = str2int xs.[17]
-            Option.map3 (fun m ws e -> { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = Some (Exception e) }) method weightings ex
+            Option.map3 (fun m ws e ->
+                { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = Some (Exception e) })
+                method weightings ex
         | xs when xs.Length = 17 ->
             let scFrom, scTo = xs.[0], xs.[1]
             let method = xs.[2] |> parseMethod
             let weightings = xs.[3..16] |> Array.toList |> List.map str2int |> List.sequence
-            Option.map2 (fun m ws -> { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = None }) method weightings
+            Option.map2 (fun m ws ->
+                { SortCodeFrom = scFrom; SortCodeTo = scTo; Method = m; Weightings = ws; Exception = None })
+                method weightings
         | _ -> None
 
     let parseSubstitution (line: string) =
