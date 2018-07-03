@@ -54,22 +54,22 @@ let getTests() =
             testCase "Pass modulus 11 check and fail double alternate check." <| fun _ ->
                 let sc, an = "203099", "66831036"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Fail modulus 11 check and pass double alternate check." <| fun _ ->
                 let sc, an = "203099", "58716970"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Fail modulus 10 check." <| fun _ ->
                 let sc, an = "089999", "66374959"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Fail modulus 11 check." <| fun _ ->
                 let sc, an = "107999", "88837493"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
         ]
 
         testList "Exception 1 cases" [
@@ -81,7 +81,7 @@ let getTests() =
             testCase "Exception 1 where it fails double alternate check." <| fun _ ->
                 let sc, an = "118765", "64371388"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
         ]
 
         testList "Exception 2 and 9 cases" [
@@ -149,17 +149,17 @@ let getTests() =
             testCase "Exception 5 where the first checkdigit is correct and the second incorrect." <| fun _ ->
                 let sc, an = "938063", "15764273"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Exception 5 where the first checkdigit is incorrect and the second correct." <| fun _ ->
                 let sc, an = "938063", "15764264"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Exception 5 where the first checkdigit is incorrect with a remainder of 1." <| fun _ ->
                 let sc, an = "938063", "15763217"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid ValidationFailed) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
         ]
 
         testList "Exception 6 cases" [
@@ -258,12 +258,12 @@ let getTests() =
             testCase "Account number has more than 10 digits." <| fun _ ->
                 let sc, an = "089999", "66374958421"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid InvalidInput) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
 
             testCase "Account number has less than 6 digits." <| fun _ ->
                 let sc, an = "180002", "00190"
                 let result = validateAccountNo rulesTable substitutionTable sc an
-                Expect.equal result Invalid (sprintf "This shouldn't be a valid account: %s-%s" sc an)
+                Expect.equal result (Invalid InvalidInput) (sprintf "This shouldn't be a valid account: %s-%s" sc an)
         ]
     ]
 

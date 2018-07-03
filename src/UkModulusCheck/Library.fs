@@ -6,25 +6,42 @@ module Validator =
     open Helpers
     open Implementation
 
-    // TODO
-    // * Validate input SC/AN
-
     /// Loads rules for specific sort code ranges from file (valacdos.txt)
+    ///
+    /// **Parameters**
+    ///
+    ///  * `path` - path to the file containing rules from VocaLink
+    ///
+    /// **Output type**
+    ///
+    ///  * `Result<ValidationRule list, exn>`
     let loadRules path =
         loadFile parseValidationRule path
 
     /// Loads sort code substitution table from file (scsubtab.txt)
+    ///
+    /// **Parameters**
+    ///
+    ///  * `path` - path to the file containing substitutions from VocaLink
+    ///
+    /// **Output type**
+    ///
+    ///  * `Result<SortCodeSubstitution list, exn>`
     let loadSubstitutions path =
         loadFile parseSubstitution path
 
-    let calculateChecksum (method: ValidationMethod) (weightings: Weight list) (sortCode: SortCode) (accountNo: AccountNumber) =
-        //Q: is the algorithm the same as validation method?
-        //Q: how will the weightings be provided?
-        //Q: what will be the input type for SC/AN?
-        //Q: what is the expected output - just a check digit as an int?
-        0
-
-    /// Runs modulus check on UK sort code and account number given the rules and substitution tables
+    /// Runs modulus check on UK sort code and account number given the rules and substitution tables.
+    ///
+    /// **Parameters**
+    ///
+    ///  * `rulesTable` - collection containing information about which algorithm and weightings to use for given sort code
+    ///  * `substitutionTable` - collection containing sort codes which need to be substituted for check purposes
+    ///  * `sortCode` - sort code to check
+    ///  * `accountNo` - account number to check
+    ///
+    /// **Output type**
+    ///
+    ///  * `ValidationResult`
     let validateAccountNo (rulesTable: ValidationRule list) (substitutionTable: SortCodeSubstitution list) (sortCode: SortCode) (accountNo: AccountNumber) =
         //Q: is any cleanup on the input data required (especially if they are to be strings)?
         //Q: what is the expected output - just the information if the SC/AN is valid or something more is needed?
@@ -33,5 +50,5 @@ module Validator =
             let rules = rulesTable |> List.filter (fun r -> sortCode >= r.SortCodeFrom && sortCode <= r.SortCodeTo)
             validateRules rules substitutionTable sortCode accountNo
         | None ->
-            Invalid
+            Invalid InvalidInput
 
