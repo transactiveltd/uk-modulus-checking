@@ -7,7 +7,8 @@
 This library provides the functions to validate UK sort code and account number
 according to the specification provided by [VocaLink](https://www.vocalink.com/customer-support/modulus-checking/).
 
-The library is implemented in F# and can be use from any .NET project.
+The library is implemented in F# and can be used from any .NET project.
+Library is available for both the full framework projects (net461) and the .NET Core/Standard projects (netstandard2.0).
 
 ## Usage
 
