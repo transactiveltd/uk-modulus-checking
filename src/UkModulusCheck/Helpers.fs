@@ -3,15 +3,13 @@ namespace UkModulusCheck
 module internal Helpers =
     open System
     open System.IO
+    open System.Text.RegularExpressions
 
     module List =
         let sequence xs =
             if xs |> List.exists Option.isNone
             then None
             else Some (xs |> List.choose id)
-
-    let (|Not|_|) c input =
-        if input <> c then Some c else None
 
     let char2int = Char.GetNumericValue >> int
 
@@ -20,7 +18,18 @@ module internal Helpers =
         | true, num -> Some num
         | _ -> None
 
-    let isDigitString s = s |> Seq.forall Char.IsDigit
+    let trim (s: string) = s.Trim()
+
+    let removeNonDigits s = String(s |> Seq.filter Char.IsDigit |> Seq.toArray)
+
+    let (|Trimmed|) s =
+        trim s
+
+    let (|MatchesTrimmed|) regex s =
+        Regex(regex).Match(trim s).Success
+
+    let (|Not|_|) c input =
+        if input <> c then Some c else None
 
     let loadFile parseLine path =
         try
