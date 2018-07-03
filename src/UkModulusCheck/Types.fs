@@ -4,7 +4,9 @@ namespace UkModulusCheck
 module Types =
 
     /// The result of the validation
-    type ValidationResult = Valid | Invalid
+    type ValidationResult = Valid | Invalid of FailureReason
+    /// The reason of validation failure
+    and FailureReason = ValidationFailed | UnrecognizedException | InvalidInput
 
     /// The available validation algorithms
     type ValidationMethod = Standard10 | Standard11 | DoubleAlternate
