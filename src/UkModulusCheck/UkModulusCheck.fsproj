@@ -25,6 +25,7 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="Implementation.fs" />
     <Compile Include="Library.fs" />
+    <Compile Include="CSharp.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

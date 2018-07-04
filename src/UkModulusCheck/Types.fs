@@ -7,12 +7,12 @@ module Types =
     type ValidationResult = Valid | Invalid of FailureReason
     /// The reason of validation failure
     and FailureReason =
-        ModulusCheckFailed
-        | UnrecognizedRule
-        | SortCodeInvalidLength
-        | SortCodeInvalidFormat
-        | AccountNumberInvalidLength
-        | AccountNumberInvalidFormat
+        ModulusCheckFailed = 0
+        | UnrecognizedRule = 1
+        | SortCodeInvalidLength = 2
+        | SortCodeInvalidFormat = 3
+        | AccountNumberInvalidLength = 4
+        | AccountNumberInvalidFormat = 5
 
     module ValidationResult =
         let bind f = function

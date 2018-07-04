@@ -66,27 +66,27 @@ let getTests() =
             ]
 
             testCase "Pass modulus 11 check and fail double alternate check." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "203099" "66831036"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "203099" "66831036"
 
             testCase "Fail modulus 11 check and pass double alternate check." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "203099" "58716970"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "203099" "58716970"
 
             testCase "Fail modulus 11 check and skip double alternate check." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "404784" "70872491"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "404784" "70872491"
 
             testList "Fail modulus 10 check." [
                 yield! ["089999","66374959"; "090128","13745521"]
-                |> testCaseM (expectToBeInvalid ModulusCheckFailed)
+                |> testCaseM (expectToBeInvalid FailureReason.ModulusCheckFailed)
             ]
 
             testList "Fail modulus 11 check." [
                 yield! ["107999","88837493"; "560003","23354647"]
-                |> testCaseM (expectToBeInvalid ModulusCheckFailed)
+                |> testCaseM (expectToBeInvalid FailureReason.ModulusCheckFailed)
             ]
 
             testList "Fail double alternate check." [
                 yield! ["040469","00000311"; "040469","00001011"]
-                |> testCaseM (expectToBeInvalid ModulusCheckFailed)
+                |> testCaseM (expectToBeInvalid FailureReason.ModulusCheckFailed)
             ]
         ]
 
@@ -95,7 +95,7 @@ let getTests() =
                 expectToBeValid "118765" "64371389"
 
             testCase "Exception 1 where it fails double alternate check." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "118765" "64371388"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "118765" "64371388"
         ]
 
         testList "Exception 2 and 9 cases" [
@@ -115,7 +115,7 @@ let getTests() =
 
             testList "Exception 2 & 9 where both checks fail." [
                 yield! ["308087","25337846"; "308088","24457846"]
-                |> testCaseM (expectToBeInvalid ModulusCheckFailed)
+                |> testCaseM (expectToBeInvalid FailureReason.ModulusCheckFailed)
             ]
         ]
 
@@ -146,13 +146,13 @@ let getTests() =
                 expectToBeValid "938063" "55065200"
 
             testCase "Exception 5 where the first checkdigit is correct and the second incorrect." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "938063" "15764273"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "938063" "15764273"
 
             testCase "Exception 5 where the first checkdigit is incorrect and the second correct." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "938063" "15764264"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "938063" "15764264"
 
             testCase "Exception 5 where the first checkdigit is incorrect with a remainder of 1." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "938063" "15763217"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "938063" "15763217"
         ]
 
         testList "Exception 6 cases" [
@@ -166,7 +166,7 @@ let getTests() =
                 expectToBeValid "200915" "41011166"
 
             testCase "Exception 6 where check fails." <| fun _ ->
-                expectToBeInvalid ModulusCheckFailed "205132" "23537846"
+                expectToBeInvalid FailureReason.ModulusCheckFailed "205132" "23537846"
         ]
 
         testList "Exception 7 cases" [
@@ -231,13 +231,13 @@ let getTests() =
 
         testList "Invalid account number" [
             testCase "Account number has non-digit characters." <| fun _ ->
-                expectToBeInvalid AccountNumberInvalidFormat "000000" "abcdefgh"
+                expectToBeInvalid FailureReason.AccountNumberInvalidFormat "000000" "abcdefgh"
 
             testCase "Account number has too many digits." <| fun _ ->
-                expectToBeInvalid AccountNumberInvalidLength "000000" "12345678901"
+                expectToBeInvalid FailureReason.AccountNumberInvalidLength "000000" "12345678901"
 
             testCase "Account number has not enough digits." <| fun _ ->
-                expectToBeInvalid AccountNumberInvalidLength "000000" "12345"
+                expectToBeInvalid FailureReason.AccountNumberInvalidLength "000000" "12345"
         ]
 
         testList "Sort code with separators or whitespace" [
@@ -253,16 +253,16 @@ let getTests() =
 
         testList "Invalid sort code" [
             testCase "Sort code has invalid characters." <| fun _ ->
-                expectToBeInvalid SortCodeInvalidFormat "00*00*00" "12345678"
+                expectToBeInvalid FailureReason.SortCodeInvalidFormat "00*00*00" "12345678"
 
             testCase "Sort code has separators in wrong places." <| fun _ ->
-                expectToBeInvalid SortCodeInvalidFormat "000-000" "12345678"
+                expectToBeInvalid FailureReason.SortCodeInvalidFormat "000-000" "12345678"
 
             testCase "Sort code has too many digits." <| fun _ ->
-                expectToBeInvalid SortCodeInvalidLength "00-00-000" "12345678"
+                expectToBeInvalid FailureReason.SortCodeInvalidLength "00-00-000" "12345678"
 
             testCase "Sort code has not enough digits." <| fun _ ->
-                expectToBeInvalid SortCodeInvalidLength "00000" "12345678"
+                expectToBeInvalid FailureReason.SortCodeInvalidLength "00000" "12345678"
         ]
     ]
 
