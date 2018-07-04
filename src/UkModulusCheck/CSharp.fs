@@ -3,64 +3,58 @@ namespace UkModulusCheck.CSharp
 open UkModulusCheck
 open UkModulusCheck.Types
 open System
-open System.Collections.Generic
 
 /// The result of validation
 type ValidationResult = { IsValid: bool; FailureReason: Nullable<FailureReason> }
 
 /// The C# API of the library
 type Validator() =
+    let mutable validationRules = None
+    let mutable substitutions = None
 
-    /// Loads rules for specific sort code ranges from file (valacdos.txt)
+    /// Loads rules for specific sort code ranges and sort code substitution table from files
     ///
     /// **Parameters**
     ///
-    ///  * `path` - path to the file containing rules from VocaLink
+    ///  * `rulesPath` - path to the file containing rules from VocaLink (valacdos.txt)
+    ///  * `substitutionsPath` - path to the file containing substitutions from VocaLink (scsubtab.txt)
     ///
     /// **Output type**
     ///
-    ///  * `List<ValidationRule>`
+    ///  * `void`
     ///
     /// **Exceptions**
     ///
     ///  * Exceptions may be thrown when file is not accesible (e.g. not found, lack of permissions)
-    static member LoadRules path =
-        match Validator.loadRules path with
-        | Ok rules -> List<ValidationRule>(rules)
+    member this.LoadData rulesPath substitutionsPath =
+        match Validator.loadRules rulesPath with
+        | Ok rules -> validationRules <- Some rules
         | Error ex -> raise ex
 
-    /// Loads sort code substitution table from file (scsubtab.txt)
-    ///
-    /// **Parameters**
-    ///
-    ///  * `path` - path to the file containing substitutions from VocaLink
-    ///
-    /// **Output type**
-    ///
-    ///  * `List<SortCodeSubstitution>`
-    ///
-    /// **Exceptions**
-    ///
-    ///  * Exceptions may be thrown when file is not accesible (e.g. not found, lack of permissions)
-    static member LoadSubstitutions path =
-        match Validator.loadSubstitutions path with
-        | Ok subs -> List<SortCodeSubstitution>(subs)
+        match Validator.loadSubstitutions substitutionsPath with
+        | Ok subs -> substitutions <- Some subs
         | Error ex -> raise ex
 
     /// Runs modulus check on UK sort code and account number given the rules and substitution tables.
+    /// Requires `LoadData` to be called first to initialize data tables.
     ///
     /// **Parameters**
     ///
-    ///  * `rulesTable` - collection containing information about which algorithm and weightings to use for given sort code
-    ///  * `substitutionTable` - collection containing sort codes which need to be substituted for check purposes
     ///  * `sortCode` - sort code to check
     ///  * `accountNo` - account number to check
     ///
     /// **Output type**
     ///
-    ///  * `ValidationResult`
-    static member ValidateAccountNo (rulesTable: ValidationRule seq) (substitutionTable: SortCodeSubstitution seq) (sortCode: SortCode) (accountNo: AccountNumber) =
-        match Validator.validateAccountNo rulesTable substitutionTable sortCode accountNo with
-        | Valid -> { IsValid = true; FailureReason = Nullable() }
-        | Invalid reason -> { IsValid = false; FailureReason = Nullable(reason) }
+    ///  * `ValidationResult` - describes the validation result and the reason in case of failure
+    ///
+    /// **Exceptions**
+    ///
+    ///  * Exception will be thrown when method is called before initializing the instance (calling `LoadData`).
+    member this.ValidateAccount (sortCode: SortCode) (accountNo: AccountNumber) =
+        match validationRules, substitutions with
+        | Some rules, Some subs ->
+            match Validator.validateAccountNo rules subs sortCode accountNo with
+            | Valid -> { IsValid = true; FailureReason = Nullable() }
+            | Invalid reason -> { IsValid = false; FailureReason = Nullable(reason) }
+        | _ -> failwith "Class is not initialized! Call LoadData to initialize."
 

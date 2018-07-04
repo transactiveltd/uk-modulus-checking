@@ -13,27 +13,30 @@ To check the sort code / account number pair you'll need:
 
 You can obtain newest version of both files from [VocaLink](https://www.vocalink.com/customer-support/modulus-checking/).
 
-Once you got the files, you can load the data into memory (and potentially cache it) using provided `Validator` class:
+Once you got the files, you need to create an instance of `Validator` class and initialize it by loading the data into memory using the `LoadData` method:
 
     [lang=csharp]
     using UkModulusCheck.CSharp;
 
+    var validator = new Validator();
     try
     {
-        var rules = Validator.LoadRules("valacdos-v490.txt");
-        var substitutions = Validator.LoadSubstitutions("scsubtab.txt");
+        validator.LoadData("valacdos.txt", "scsubtab.txt");
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Error loading data from files: {ex}");
     }
 
-You can find the details of those methods in [the reference docs](reference/ukmoduluscheck-csharp-validator.html).
+You can find the details of the method in [the reference docs](reference/ukmoduluscheck-csharp-validator.html).
 
-To validate the sort code and account number pair use the `ValidateAccountNo` method:
+To validate the sort code and account number pair use the `ValidateAccount` method:
 
     [lang=csharp]
-    var result = Validator.ValidateAccountNo(rules, substitutions, sortCode, accountNumber);
+    var sortCode = "000000";
+    var accountNumber = "12345678";
+
+    var result = validator.ValidateAccount(sortCode, accountNumber);
 
     if (result.IsValid)
         Console.WriteLine($"{sortCode}-{accountNumber} is valid :)");
@@ -42,3 +45,7 @@ To validate the sort code and account number pair use the `ValidateAccountNo` me
 
 For more information about the API and types used by the library please check [the reference docs](reference/index.html).
 
+## Notes
+
+Loading the data using the `LoadData` method modifies the state of the `Validator` class instance and should be considered thread unsafe.
+Validating the data using the `ValidateAccount` method doesn't modify the state and can be considered thread safe.
