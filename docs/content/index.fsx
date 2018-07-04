@@ -10,6 +10,8 @@ according to the specification provided by [VocaLink](https://www.vocalink.com/c
 The library is implemented in F# and can be used from any .NET project.
 Library is available for both the full framework projects (net461) and the .NET Core/Standard projects (netstandard2.0).
 
+If you're planning to use the library from C# (or VB), please check [the C# usage guide](csharp.html).
+
 ## Usage
 
 To check the sort code / account number pair you'll need:
