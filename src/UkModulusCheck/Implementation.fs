@@ -41,17 +41,17 @@ module internal Implementation =
 
     let validateSortCode (sortCode: SortCode) =
         match sortCode with
-        | null -> Invalid SortCodeInvalidLength
-        | Trimmed sc when sc.Length < 6 || sc.Length > 8 -> Invalid SortCodeInvalidLength
+        | null -> Invalid FailureReason.SortCodeInvalidLength
+        | Trimmed sc when sc.Length < 6 || sc.Length > 8 -> Invalid FailureReason.SortCodeInvalidLength
         | MatchesTrimmed "^\d{2}[-\s]?\d{2}[-\s]?\d{2}$" true -> Valid
-        | _ -> Invalid SortCodeInvalidFormat
+        | _ -> Invalid FailureReason.SortCodeInvalidFormat
 
     let validateAccountNo (accountNo: AccountNumber) =
         match accountNo with
-        | null -> Invalid AccountNumberInvalidLength
-        | Trimmed an when an.Length < 6 || an.Length > 10 -> Invalid AccountNumberInvalidLength
+        | null -> Invalid FailureReason.AccountNumberInvalidLength
+        | Trimmed an when an.Length < 6 || an.Length > 10 -> Invalid FailureReason.AccountNumberInvalidLength
         | MatchesTrimmed "^\d{6,10}$" true -> Valid
-        | _ -> Invalid AccountNumberInvalidFormat
+        | _ -> Invalid FailureReason.AccountNumberInvalidFormat
 
     let standardise (sortCode: string) (accountNo: string) =
         match sortCode.Length, accountNo.Length with
@@ -77,7 +77,7 @@ module internal Implementation =
         |> Seq.map2 (*) weightings
         |> Seq.sum
 
-    let invalidIfFalse result = if result then Valid else Invalid ModulusCheckFailed
+    let invalidIfFalse result = if result then Valid else Invalid FailureReason.ModulusCheckFailed
 
     let validateRule rule number =
         match rule.Method with
@@ -226,4 +226,4 @@ module internal Implementation =
 
             (validateRule rule number || secondCheck) |> invalidIfFalse
 
-        | _ -> Invalid UnrecognizedRule
+        | _ -> Invalid FailureReason.UnrecognizedRule
