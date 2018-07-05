@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Usage from C#
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Type providers for SQL server access.">
+    <meta name="author" content="Transactive Ltd">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://github.com/transactiveltd/uk-modulus-checking">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="./index.html">UKModulusCheck</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Usage-from-C" class="anchor" href="#Usage-from-C">Usage from C#</a></h1>
+<h2><a name="Prerequisites" class="anchor" href="#Prerequisites">Prerequisites</a></h2>
+<p>To use the library from C# you'll need to add reference to <code>FSharp.Core</code> package to your project. You can <a href="https://www.nuget.org/packages/FSharp.Core">grab it from NuGet</a>.</p>
+<h2><a name="Usage" class="anchor" href="#Usage">Usage</a></h2>
+<p>To check the sort code / account number pair you'll need:</p>
+<ul>
+<li><a href="https://www.vocalink.com/media/3003/valacdos-v490.txt">Rules and weightings table</a></li>
+<li><a href="https://www.vocalink.com/media/1517/scsubtab.txt">Sort code substitution table</a>.</li>
+</ul>
+<p>You can obtain newest version of both files from <a href="https://www.vocalink.com/customer-support/modulus-checking/">VocaLink</a>.</p>
+<p>Once you got the files, you need to create an instance of <code>Validator</code> class and initialize it by loading the data into memory using the <code>LoadData</code> method:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="csharp"><span class="k">using</span> UkModulusCheck.CSharp;
+
+<span class="k">var</span> validator <span class="o">=</span> <span class="k">new</span> Validator();
+<span class="k">try</span>
+{
+    validator.LoadData(<span class="s">"valacdos.txt"</span>, <span class="s">"scsubtab.txt"</span>);
+}
+<span class="k">catch</span> (Exception ex)
+{
+    Console.WriteLine($<span class="s">"Error loading data from files: {ex}"</span>);
+}
+</code></pre></td></tr></table>
+<p>You can find the details of the method in <a href="reference/ukmoduluscheck-csharp-validator.html">the reference docs</a>.</p>
+<p>To validate the sort code and account number pair use the <code>ValidateAccount</code> method:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="csharp"><span class="k">var</span> sortCode <span class="o">=</span> <span class="s">"000000"</span>;
+<span class="k">var</span> accountNumber <span class="o">=</span> <span class="s">"12345678"</span>;
+
+<span class="k">var</span> result <span class="o">=</span> validator.ValidateAccount(sortCode, accountNumber);
+
+<span class="k">if</span> (result.IsValid)
+    Console.WriteLine($<span class="s">"{sortCode}-{accountNumber} is valid :)"</span>);
+<span class="k">else</span>
+    Console.WriteLine($<span class="s">"{sortCode}-{accountNumber} is Invalid :( Reason: {result.FailureReason}"</span>);
+</code></pre></td></tr></table>
+<p>For more information about the API and types used by the library please check <a href="reference/index.html">the reference docs</a>.</p>
+<h2><a name="Notes" class="anchor" href="#Notes">Notes</a></h2>
+<p>Loading the data using the <code>LoadData</code> method modifies the state of the <code>Validator</code> class instance and should be considered thread unsafe.
+Validating the data using the <code>ValidateAccount</code> method doesn't modify the state and can be considered thread safe.</p>
+
+
+        </div>
+        <div class="span3">
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">UKModulusCheck</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/UkModulusCheck">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/transactiveltd/uk-modulus-checking">Source Code on GitHub</a></li>
+            <li><a href="./license.html">License</a></li>
+            <li><a href="./release-notes.html">Release Notes</a></li>
+                    
+            <li class="nav-header">Documentation</li>
+              <li><a href="./index.html">Usage from F#</a></li>
+              <li><a href="./csharp.html">Usage from C#</a></li>
+              <li><a href="./reference/index.html">API Docs</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/transactiveltd/uk-modulus-checking"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

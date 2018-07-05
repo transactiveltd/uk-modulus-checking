@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>UK Modulus Check
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Type providers for SQL server access.">
+    <meta name="author" content="Transactive Ltd">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="./content/style.css" />
+    <script type="text/javascript" src="./content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://github.com/transactiveltd/uk-modulus-checking">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="./index.html">UKModulusCheck</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="UK-Modulus-Check" class="anchor" href="#UK-Modulus-Check">UK Modulus Check</a></h1>
+<p>This library provides the functions to validate UK sort code and account number
+according to the specification provided by <a href="https://www.vocalink.com/customer-support/modulus-checking/">VocaLink</a>.</p>
+<p>The library is implemented in F# and can be used from any .NET project.
+Library is available for both the full framework projects (net461) and the .NET Core/Standard projects (netstandard2.0).</p>
+<p>If you're planning to use the library from C# (or VB), please check <a href="csharp.html">the C# usage guide</a>.</p>
+<h2><a name="Usage" class="anchor" href="#Usage">Usage</a></h2>
+<p>To check the sort code / account number pair you'll need:</p>
+<ul>
+<li><a href="https://www.vocalink.com/media/3003/valacdos-v490.txt">Rules and weightings table</a></li>
+<li><a href="https://www.vocalink.com/media/1517/scsubtab.txt">Sort code substitution table</a>.</li>
+</ul>
+<p>You can obtain newest version of both files from <a href="https://www.vocalink.com/customer-support/modulus-checking/">VocaLink</a>.</p>
+<p>Once you got the files, you can load the data into memory (and potentially cache it) using provided functions:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">UkModulusCheck</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Validator</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">rules</span> <span class="o">=</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">loadRules</span> <span class="s">&quot;valacdos-v490.txt&quot;</span> <span class="k">with</span>
+    | <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="p">Ok</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">r</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="i">r</span>
+    | <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="p">Error</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">ex</span> <span class="k">-&gt;</span> [] <span class="c">// Handle loading error</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">substitutions</span> <span class="o">=</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="f">loadSubstitutions</span> <span class="s">&quot;scsubtab.txt&quot;</span> <span class="k">with</span>
+    | <span onmouseout="hideTip(event, 'fs5', 12)" onmouseover="showTip(event, 'fs5', 12)" class="p">Ok</span> <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="i">s</span>
+    | <span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="p">Error</span> <span onmouseout="hideTip(event, 'fs8', 16)" onmouseover="showTip(event, 'fs8', 16)" class="i">ex</span> <span class="k">-&gt;</span> [] <span class="c">// Handle loading error</span>
+</code></pre></td>
+</tr>
+</table>
+<p>You can find the details of the functions in <a href="reference/ukmoduluscheck-validator.html">the reference docs</a>.</p>
+<p>To validate the sort code and account number pair use <code>validateAccountNo</code> function:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">match</span> <span onmouseout="hideTip(event, 'fs12', 17)" onmouseover="showTip(event, 'fs12', 17)" class="f">validateAccountNo</span> <span onmouseout="hideTip(event, 'fs3', 18)" onmouseover="showTip(event, 'fs3', 18)" class="i">rules</span> <span onmouseout="hideTip(event, 'fs9', 19)" onmouseover="showTip(event, 'fs9', 19)" class="i">substitutions</span> <span class="i">sortCode</span> <span class="i">accountNumber</span> <span class="k">with</span>
+| <span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="i">Valid</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs14', 21)" onmouseover="showTip(event, 'fs14', 21)" class="f">printfn</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">-</span><span class="pf">%s</span><span class="s"> is valid!&quot;</span> <span class="i">sortCode</span> <span class="i">accountNumber</span>
+| <span class="i">Invalid</span> <span class="i">reason</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="i">printfn</span> <span class="s">&quot;%s-%s is invalid! Reason: %A&quot;</span> <span class="i">sortCode</span> <span class="i">accountNumber</span> <span class="i">reason</span>
+</code></pre></td>
+</tr>
+</table>
+<p>For more information about the API and types used by the library please check <a href="reference/index.html">the reference docs</a>.</p>
+
+<div class="tip" id="fs1">namespace UkModulusCheck</div>
+<div class="tip" id="fs2">module Validator<br /><br />from UkModulusCheck</div>
+<div class="tip" id="fs3">val rules : UkModulusCheck.Types.ValidationRule list<br /><br />Full name: Index.rules</div>
+<div class="tip" id="fs4">val loadRules : path:string -&gt; Result&lt;UkModulusCheck.Types.ValidationRule list,exn&gt;<br /><br />Full name: UkModulusCheck.Validator.loadRules</div>
+<div class="tip" id="fs5">union case Result.Ok: ResultValue: &#39;T -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div class="tip" id="fs6">val r : UkModulusCheck.Types.ValidationRule list</div>
+<div class="tip" id="fs7">union case Result.Error: ErrorValue: &#39;TError -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div class="tip" id="fs8">val ex : exn</div>
+<div class="tip" id="fs9">val substitutions : UkModulusCheck.Types.SortCodeSubstitution list<br /><br />Full name: Index.substitutions</div>
+<div class="tip" id="fs10">val loadSubstitutions : path:string -&gt; Result&lt;UkModulusCheck.Types.SortCodeSubstitution list,exn&gt;<br /><br />Full name: UkModulusCheck.Validator.loadSubstitutions</div>
+<div class="tip" id="fs11">val s : UkModulusCheck.Types.SortCodeSubstitution list</div>
+<div class="tip" id="fs12">val validateAccountNo : rulesTable:seq&lt;UkModulusCheck.Types.ValidationRule&gt; -&gt; substitutionTable:seq&lt;UkModulusCheck.Types.SortCodeSubstitution&gt; -&gt; sortCode:UkModulusCheck.Types.SortCode -&gt; accountNo:UkModulusCheck.Types.AccountNumber -&gt; UkModulusCheck.Types.ValidationResult<br /><br />Full name: UkModulusCheck.Validator.validateAccountNo</div>
+<div class="tip" id="fs13">val Valid : UkModulusCheck.Types.ValidationResult</div>
+<div class="tip" id="fs14">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+
+        </div>
+        <div class="span3">
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">UKModulusCheck</li>
+            <li><a href="./index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/UkModulusCheck">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/transactiveltd/uk-modulus-checking">Source Code on GitHub</a></li>
+            <li><a href="./license.html">License</a></li>
+            <li><a href="./release-notes.html">Release Notes</a></li>
+                    
+            <li class="nav-header">Documentation</li>
+              <li><a href="./index.html">Usage from F#</a></li>
+              <li><a href="./csharp.html">Usage from C#</a></li>
+              <li><a href="./reference/index.html">API Docs</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/transactiveltd/uk-modulus-checking"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>
