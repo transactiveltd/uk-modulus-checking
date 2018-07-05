@@ -1,11 +1,13 @@
-image:  
+image:
   - Visual Studio 2017
   - Ubuntu
 init:
   - git config --global core.autocrlf input
+install:
+  - chmod +x build.sh
 build_script:
   - cmd: build.cmd
-  - sh: build.sh
+  - sh: ./build.sh
 test: off
 version: 0.0.1.{build}
 artifacts:
