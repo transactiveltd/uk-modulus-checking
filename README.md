@@ -6,10 +6,10 @@ Validate UK sortcode/account number using algorithms and weightings [published b
 
 ## Builds
 
-MacOS/Linux | Windows
---- | ---
-[![Travis Badge](https://travis-ci.org/transactiveltd/uk-modulus-checking.svg?branch=master)](https://travis-ci.org/transactiveltd/uk-modulus-checking) | [![Build status](https://ci.appveyor.com/api/projects/status/github/transactiveltd/uk-modulus-checking?svg=true)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)
-[![Build History](https://buildstats.info/travisci/chart/transactiveltd/uk-modulus-checking)](https://travis-ci.org/transactiveltd/uk-modulus-checking/builds) | [![Build History](https://buildstats.info/appveyor/chart/transactiveltd/uk-modulus-checking)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)  
+| Windows/Linux
+| ---
+| [![Build status](https://ci.appveyor.com/api/projects/status/github/transactiveltd/uk-modulus-checking?svg=true)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)
+| [![Build History](https://buildstats.info/appveyor/chart/transactiveltd/uk-modulus-checking)](https://ci.appveyor.com/project/transactiveltd/uk-modulus-checking)  
 
 
 ## Nuget 
