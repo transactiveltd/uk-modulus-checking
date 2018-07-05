@@ -335,6 +335,19 @@ Target "KeepRunning" (fun _ ->
 
 Target "GenerateDocs" DoNothing
 
+Target "ReleaseDocs" (fun _ ->
+    let tempDocsDir = "temp/gh-pages"
+    CleanDir tempDocsDir
+    Repository.cloneSingleBranch "" ("git@github.com:" + gitOwner + "/" + gitRepoName + ".git") "gh-pages" tempDocsDir
+
+    Git.CommandHelper.runSimpleGitCommand tempDocsDir "rm . -f -r" |> ignore
+    CopyRecursive "docs/output" tempDocsDir true |> tracefn "%A"
+
+    StageAll tempDocsDir
+    Git.Commit.Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
+    Branches.push tempDocsDir
+)
+
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
 "Clean" ?=> "DotnetRestore"
