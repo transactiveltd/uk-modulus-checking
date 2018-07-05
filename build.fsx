@@ -20,7 +20,6 @@ let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
 let gitOwner = "transactiveltd"
 let gitRepoName = "uk-modulus-checking"
-let gitHome = "https://github.com/" + gitOwner
 
 let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
@@ -339,7 +338,7 @@ Target "GenerateDocs" DoNothing
 Target "ReleaseDocs" (fun _ ->
     let tempDocsDir = "temp/gh-pages"
     CleanDir tempDocsDir
-    Repository.cloneSingleBranch "" (gitHome + "/" + gitRepoName + ".git") "gh-pages" tempDocsDir
+    Repository.cloneSingleBranch "" ("git@github.com:" + gitOwner + "/" + gitRepoName + ".git") "gh-pages" tempDocsDir
 
     Git.CommandHelper.runSimpleGitCommand tempDocsDir "rm . -f -r" |> ignore
     CopyRecursive "docs/output" tempDocsDir true |> tracefn "%A"
