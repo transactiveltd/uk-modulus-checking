@@ -18,6 +18,18 @@ module Validator =
     let loadRules path =
         loadFile parseValidationRule path
 
+    /// Loads rules for specific sort code ranges from string collection
+    ///
+    /// **Parameters**
+    ///
+    ///  * `lines` - collection of lines from the file containing rules from VocaLink
+    ///
+    /// **Output type**
+    ///
+    ///  * `ValidationRule list`
+    let parseRules lines =
+        loadLines parseValidationRule lines
+
     /// Loads sort code substitution table from file (scsubtab.txt)
     ///
     /// **Parameters**
@@ -29,6 +41,18 @@ module Validator =
     ///  * `Result<SortCodeSubstitution list, exn>`
     let loadSubstitutions path =
         loadFile parseSubstitution path
+
+    /// Loads sort code substitution table from string collection
+    ///
+    /// **Parameters**
+    ///
+    ///  * `lines` - collection of lines from the file containing substitutions from VocaLink
+    ///
+    /// **Output type**
+    ///
+    ///  * `SortCodeSubstitution list`
+    let parseSubstitutions lines =
+        loadLines parseSubstitution lines
 
     /// Runs modulus check on UK sort code and account number given the rules and substitution tables.
     ///
