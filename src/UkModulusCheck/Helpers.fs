@@ -33,8 +33,7 @@ module internal Helpers =
 
     let loadLines parseLine lines =
         lines
-        |> Seq.map (fun line -> if String.IsNullOrWhiteSpace line then None else parseLine line)
-        |> Seq.choose id
+        |> Seq.choose (fun line -> if String.IsNullOrWhiteSpace line then None else parseLine line)
         |> Seq.toList
 
     let loadFile parseLine path =
