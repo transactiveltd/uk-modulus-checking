@@ -36,6 +36,16 @@ let substitutions =
     | Error ex -> [] // Handle loading error
 
 (**
+Alternatively, you can load files by yourself and use built in functions to parse their content:
+*)
+
+let ruleLines = ["..."] // Loaded/cached valacdos.txt file contents
+let substitutionLines = ["..."] // Loaded/cached scsubtab.txt file contents
+
+let rules = parseRules ruleLines
+let substitutions = parseSubstitutions substitutionLines
+
+(**
 You can find the details of the functions in [the reference docs](reference/ukmoduluscheck-validator.html).
 
 To validate the sort code and account number pair use `validateAccountNo` function:

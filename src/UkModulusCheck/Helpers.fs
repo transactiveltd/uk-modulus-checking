@@ -31,12 +31,15 @@ module internal Helpers =
     let (|Not|_|) c input =
         if input <> c then Some c else None
 
+    let loadLines parseLine lines =
+        lines
+        |> Seq.choose (fun line -> if String.IsNullOrWhiteSpace line then None else parseLine line)
+        |> Seq.toList
+
     let loadFile parseLine path =
         try
             File.ReadAllLines(path)
-            |> Array.map (fun line -> if String.IsNullOrWhiteSpace line then None else parseLine line)
-            |> Array.choose id
-            |> Array.toList
+            |> loadLines parseLine
             |> Ok
         with
         | e -> Error e
