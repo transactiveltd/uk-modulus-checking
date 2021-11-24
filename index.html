@@ -34,17 +34,17 @@
           
 <h1><a name="UK-Modulus-Check" class="anchor" href="#UK-Modulus-Check">UK Modulus Check</a></h1>
 <p>This library provides the functions to validate UK sort code and account number
-according to the specification provided by <a href="https://www.vocalink.com/customer-support/modulus-checking/">VocaLink</a>.</p>
+according to the specification provided by <a href="https://www.vocalink.com/tools/modulus-checking/">VocaLink</a>.</p>
 <p>The library is implemented in F# and can be used from any .NET project.
 Library is available for both the full framework projects (net461) and the .NET Core/Standard projects (netstandard2.0).</p>
 <p>If you're planning to use the library from C# (or VB), please check <a href="csharp.html">the C# usage guide</a>.</p>
 <h2><a name="Usage" class="anchor" href="#Usage">Usage</a></h2>
 <p>To check the sort code / account number pair you'll need:</p>
 <ul>
-<li><a href="https://www.vocalink.com/media/3003/valacdos-v490.txt">Rules and weightings table</a></li>
-<li><a href="https://www.vocalink.com/media/1517/scsubtab.txt">Sort code substitution table</a>.</li>
+<li><a href="https://www.vocalink.com/media/0lndwcxm/valacdos.txt">Rules and weightings table</a></li>
+<li><a href="https://www.vocalink.com/media/tedlwtxz/scsubtab.txt">Sort code substitution table</a>.</li>
 </ul>
-<p>You can obtain newest version of both files from <a href="https://www.vocalink.com/customer-support/modulus-checking/">VocaLink</a>.</p>
+<p>You can obtain newest version of both files from <a href="https://www.vocalink.com/tools/modulus-checking/">VocaLink</a>.</p>
 <p>Once you got the files, you can load the data into memory (and potentially cache it) using provided functions:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
